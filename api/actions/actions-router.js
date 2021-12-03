@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const Actions = require('./actions-model');
+const {validateActionsId} = require('./actions-middlware');
 
 router.get('/', (req,res) => {
     res.json({
@@ -10,10 +11,8 @@ router.get('/', (req,res) => {
     })
 })
 
-router.get('/:id', (req,res) => {
-    res.json({
-        message: "This is the get by id -actions"
-    })
+router.get('/:id', validateActionsId, (req,res) => {
+    res.json(req.action)
 })
 
 router.post('/', (req,res) => {
