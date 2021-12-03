@@ -3,39 +3,57 @@ const express = require('express');
 const router = express.Router();
 
 const Actions = require('./actions-model');
-const {validateActionsId} = require('./actions-middlware');
+const {validateActionsId, validateProjectId} = require('./actions-middlware');
+const {descriptionValidator,
+    notesValidator,} 
+    = require('../global-middleware')
 
-router.get('/', (req,res) => {
-    res.json({
-        message: "This is the get all -actions"
-    })
+router.get('/', async (req, res, next) => {
+    try {
+        const actions = await Actions.get()
+        res.json(actions)
+    }
+    catch (err) {
+        next(err)
+    }
+    
 })
 
-router.get('/:id', validateActionsId, (req,res) => {
+router.get('/:id',  validateActionsId, (req,res) => {
     res.json(req.action)
 })
 
-router.post('/', (req,res) => {
-    res.json({
-        message: "This is the create new -actions"
-    })
+router.post('/', validateProjectId, descriptionValidator, notesValidator, async (req, res, next) => {
+    try {
+        const created = await Actions.insert(req.body)
+        res.status(201).json(created)
+    }
+    catch (err) {
+        next(err)
+    }
 })
 
-router.put('/:id', (req,res) => {
-    res.json({
-        message: "This is the update -actions"
-    })
+router.put('/:id', validateActionsId, validateProjectId, descriptionValidator, notesValidator, async(req, res, next) => {
+    try {
+        const updated = await Actions.update(req.params.id, req.body)
+        res.json(updated)
+    }
+    catch (err) {
+        next(err)
+    }
+   
 })
 
-router.delete('/:id', (req,res) => {
-    res.json({
-        message: "This is the delete -actions"
-    })
-})
-
-router.get('/test/test', (req,res,next) => {
-    next({})
-
+router.delete('/:id', validateActionsId, async (req, res, next) => {
+    try {
+        const deleted = await Actions.remove(req.params.id)
+        res.json({
+            message: `action ${req.params.id} has been removed`
+        })
+    }
+    catch (err) {
+        next(err)
+    }
 })
 
 router.use((err, req, res, next)=>{
