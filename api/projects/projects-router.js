@@ -4,6 +4,11 @@ const router = express.Router();
 
 const {errHandler} = require('../global-middleware');
 const {validateProjectId} = require('./projects-middleware');
+const {nameValidator,
+    descriptionValidator,
+    completedValidator,
+    notesValidator,} 
+    = require('../global-middleware')
 
 const Projects = require('./projects-model');
 
@@ -46,8 +51,10 @@ router.delete('/:id', (req,res) => {
     })
 })
 
-router.get('/test/test', (req,res, next) => {
-    next({})
+router.get('/test/test', nameValidator, descriptionValidator, completedValidator, notesValidator, (req,res, next) => {
+    res.json({
+        message: "yeah"
+    })
 })
 
 router.use((err, req, res, next)=>{
